@@ -1,2 +1,2 @@
-# train_mnist
-MLPで実装
+# classify_mnist
+mlp.py MLPで実装
