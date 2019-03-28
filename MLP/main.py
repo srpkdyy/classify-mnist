@@ -1,5 +1,3 @@
-import matplotlib; matplotlib.use('agg'); del matplotlib
-
 import numpy as np
 import argparse
 
@@ -7,6 +5,7 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 from chainer import iterators, optimizers
+from chainer import training
 from chainer.training import extensions
 
 
@@ -18,8 +17,8 @@ class MLP(chainer.Chain):
         super().__init__()
         with self.init_scope():
             self.fc1 = L.Linear(None, n_nodes)
-            self.fc2 = L.Linear(n_nodes, n_nodes)
-            self.fc3 = L.Linear(n_nodes, n_out)
+            self.fc2 = L.Linear(None, n_nodes)
+            self.fc3 = L.Linear(None, n_out)
 
 
     def __call__(self, x):
@@ -31,14 +30,17 @@ class MLP(chainer.Chain):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--batch_size', '-b', type=int, default=100)
-    parser.add_argument('--epoch', '-e', type=int, default=10)
-    parser.add_argument('--nodes', '-n', type=int, default=1000)
+    parser = argparse.ArgumentParser(description='MLP for MNIST')
+    parser.add_argument('--batch_size', '-b', type=int, default=100, help='Number of images in each mini-batch')
+    parser.add_argument('--epoch', '-e', type=int, default=20, help='Number of sweeps over the dataset to train')
+    parser.add_argument('--gpu', '-g', type=int, default=-1)
+    parser.add_argument('--nodes', '-n', type=int, default=1000, help='')
     parser.add_argument('--out', '-o', default='result')
     args = parser.parse_args()
 
     model = L.Classifier(MLP(args.nodes))
+    if args.gpu >= 0:
+        model.to_gpu(args.gpu)
 
     optimizer = optimizers.Adam()
     optimizer.setup(model)
@@ -48,10 +50,10 @@ def main():
     train_itr = iterators.SerialIterator(train, args.batch_size)
     test_itr = iterators.SerialIterator(test, args.batch_size, repeat=False, shuffle=False)
 
-    updater = chainer.training.updaters .StandardUpdater(train_itr, optimizer)
-    trainer = chainer.training.Trainer(updater, (args.epoch, 'epoch'), out=args.out)
+    updater = training.updaters.StandardUpdater(train_itr, optimizer, device=args.gpu)
+    trainer = training.Trainer(updater, (args.epoch, 'epoch'), out=args.out)
 
-    trainer.extend(extensions.Evaluator(test_itr, model))
+    trainer.extend(extensions.Evaluator(test_itr, model, device=args.gpu))
     trainer.extend(extensions.LogReport())
     trainer.extend(extensions.PlotReport(['main/loss', 'validation/main/loss'], 'epoch', file_name='loss.png'))
     trainer.extend(extensions.PlotReport(['main/accuracy', 'validation/main/accuracy'], 'epoch', file_name='accuracy.png'))
