@@ -20,9 +20,10 @@ def main():
     parser.add_argument('--out', '-o', default='result')
     args = parser.parse_args()
 
-    train_ds, test_ds = chainer.datasets.get_mnist()
+    train_ds, test_ds = chainer.datasets.get_mnist(ndim=3)
+    
     train_itr = iterators.SerialIterator(train_ds, args.batch_size)
-    test_itr = iterators.SerialIterator(test_ds, args.batch_size)
+    test_itr = iterators.SerialIterator(test_ds, args.batch_size, repeat=False, shuffle=False)
     
     cnn = L.Classifier(CNN(args.nodes))
     if args.gpu >= 0:
