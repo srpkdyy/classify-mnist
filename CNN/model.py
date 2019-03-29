@@ -21,13 +21,10 @@ class CNN(chainer.Chain):
             self.fc3 = L.Linear(None, n_out)
 
 
-
     def __call__(self, x):
         h = F.max_pooling_2d(F.relu(self.bn1(self.conv1(x))), ksize=2, stride=2)
         h = F.max_pooling_2d(F.relu(self.bn2(self.conv2(h))), ksize=2, stride=2)
-        #h = F.max_pooling_2d(F.relu(self.bn3(self.conv3(h))), ksize=2, stride=2)
-        h = F.dropout(h)
+        h = F.max_pooling_2d(F.relu(self.bn3(self.conv3(h))), ksize=2, stride=2)
         h = F.dropout(F.relu(self.fc1(h)))
-        #h = F.relu(self.fc1(h))
         h = F.dropout(F.relu(self.fc2(h)))
-        return F.dropout(self.fc3(h))
+        return self.fc3(h)
