@@ -9,11 +9,11 @@ class AlexNet(chainer.Chain):
     def __init__(self, n_units=4096, n_out=10):
         super().__init__()
         with self.init_scope():
-            self.conv1 = L.Convolution2D(None, 96, ksize=4, stride=2, pad=2)
+            self.conv1 = L.Convolution2D(None, 96, ksize=4, stride=1, pad=2)
             self.conv2 = L.Convolution2D(None, 256, ksize=3, stride=1, pad=1)
-            self.conv3 = L.Convolution2D(None, 384, ksize=3, stride=1, pad=1)
-            self.conv4 = L.Convolution2D(None, 384, ksize=3, stride=1, pad=1)
-            self.conv5 = L.Convolution2D(None, 256, ksize=3, stride=1, pad=1)
+            self.conv3 = L.Convolution2D(None, 384, ksize=2, stride=1, pad=1)
+            self.conv4 = L.Convolution2D(None, 384, ksize=2, stride=1, pad=1)
+            self.conv5 = L.Convolution2D(None, 256, ksize=2, stride=1, pad=1)
             self.fc1 = L.Linear(None, n_units)
             self.fc2 = L.Linear(None, n_units)
             self.fc3 = L.Linear(None, n_out)

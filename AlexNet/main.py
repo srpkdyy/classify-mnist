@@ -27,7 +27,7 @@ def main():
     if args.gpu >= 0:
         model.to_gpu(args.gpu)
     
-    optimizer = optimizers.Adam()
+    optimizer = optimizers.Adam(alpha=0.0001)
     optimizer.setup(model)
 
     updater = training.updaters.StandardUpdater(train_iter, optimizer, device=args.gpu)
