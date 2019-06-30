@@ -10,6 +10,7 @@ import torch
 from torch import nn,optim
 from torch.utils.data import TensorDataset, DataLoader
 from torchvision import datasets, transforms
+import torch.backends.cudnn as cudnn
 
 
 class View(nn.Module):
@@ -28,7 +29,7 @@ def main():
     parser.add_argument('--no-cuda', action='store_true', default='False')
     args = parser.parse_args()
 
-    use_cuda = not args.no_cuda and torch.cuda.is_available()
+    use_cuda = (not args.no_cuda) and torch.cuda.is_available()
     print(args.no_cuda)
     print(torch.cuda.is_available())
     print(use_cuda)
@@ -37,6 +38,7 @@ def main():
     # idk why this line dosen't run correctly. tell me.
     #device = torch.device('cuda' if use_cuda else 'cpu')
     device = torch.device('cuda')
+    print(device)
 
     ds_train = datasets.MNIST('../dataset', train=True, download=True,
                               transform=transforms.Compose([
@@ -64,6 +66,8 @@ def main():
     model.add_module('relu2', nn.ReLU())
     model.add_module('fc3', nn.Linear(100, 10))
     model.to(device)
+
+    #cudnn.benchmark = True
     
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-2)
